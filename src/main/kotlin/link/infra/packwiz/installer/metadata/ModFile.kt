@@ -3,6 +3,7 @@ package link.infra.packwiz.installer.metadata
 import cc.ekblad.toml.delegate
 import cc.ekblad.toml.model.TomlValue
 import cc.ekblad.toml.tomlMapper
+import link.infra.packwiz.installer.Main
 import link.infra.packwiz.installer.metadata.curseforge.UpdateData
 import link.infra.packwiz.installer.metadata.hash.Hash
 import link.infra.packwiz.installer.metadata.hash.HashFormat
@@ -31,7 +32,15 @@ data class ModFile(
 	) {
 		companion object {
 			fun mapper() = tomlMapper {
-				decoder<TomlValue.String, PackwizPath<*>> { it -> HttpUrlPath(it.value.toHttpUrl()) }
+				decoder<TomlValue.String, PackwizPath<*>> { it ->
+					var path = it.value
+
+					if (!path.startsWith("http")) {
+						path = Main.packFile.resolve(path).toString()
+					}
+
+					HttpUrlPath(path.toHttpUrl())
+				}
 				mapping<Download>("hash-format" to "hashFormat")
 
 				delegateTransitive<HashFormat<*>>(HashFormat.mapper())

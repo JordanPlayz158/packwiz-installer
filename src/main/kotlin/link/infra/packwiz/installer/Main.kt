@@ -5,6 +5,7 @@ package link.infra.packwiz.installer
 import link.infra.packwiz.installer.target.Side
 import link.infra.packwiz.installer.target.path.HttpUrlPath
 import link.infra.packwiz.installer.target.path.PackwizFilePath
+import link.infra.packwiz.installer.target.path.PackwizPath
 import link.infra.packwiz.installer.ui.cli.CLIHandler
 import link.infra.packwiz.installer.ui.gui.GUIHandler
 import link.infra.packwiz.installer.ui.wrap
@@ -74,7 +75,7 @@ class Main(args: Array<String>) {
 
 		val packFileRaw = unparsedArgs[0]
 
-		val packFile = when {
+		packFile = when {
 			// HTTP(s) URLs
 			Regex("^https?://", RegexOption.IGNORE_CASE).containsMatchIn(packFileRaw) -> ui.wrap("Invalid HTTP/HTTPS URL for pack file: $packFileRaw") {
 				HttpUrlPath(packFileRaw.toHttpUrl().resolve(".")!!, packFileRaw.toHttpUrl().pathSegments.last())
@@ -118,6 +119,8 @@ class Main(args: Array<String>) {
 	}
 
 	companion object {
+		lateinit var packFile: PackwizPath<*>
+
 		// Called by packwiz-installer-bootstrap to set up the help command
 		@JvmStatic
 		fun addNonBootstrapOptions(options: Options) {
